@@ -22,7 +22,7 @@ const TeamChat = () => {
     addTeamReply,
     error,
     setError,
-    builder
+    builder,
   } = useTeams();
 
   const [input, setInput] = useState("");
@@ -55,16 +55,13 @@ const TeamChat = () => {
     ref.current.focus();
   };
 
-  const handleUnfocusInput = () => {
-    setReplyTo(null);
-  };
+  const handleUnfocusInput = () => setReplyTo(null);
 
   useEffect(() => {
     setError(false);
     getTeam();
     setAuthLayout(true);
   }, [router.query.teamId]);
-
 
   if (error) {
     return (
@@ -76,7 +73,6 @@ const TeamChat = () => {
 
   return (
     <div className="bg-gray-700">
-    {/* <div className="bg-gray-700"> */}
       <div className="h-12 bg-gray-700  border-b border-b-gray-600 px-5 flex items-center text-gray-200 text-lg font-semibold">
         {teamLoading ? (
           <Skeleton
@@ -96,7 +92,7 @@ const TeamChat = () => {
       <div className="grid grid-cols-12">
         <div className="col-span-10 overflow-y-scroll no-scrollbar h-screen relative">
           <Chat
-            messages={teamChat}
+            messages={teamChat.messages}
             reply={handleFocusInput}
             replyTo={replyTo}
           />

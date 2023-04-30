@@ -109,48 +109,6 @@ console.log('teamsss: ', teams)
 };
 
 
-const getGroupUsers = async (groupId) => {
-  const userRef = collection(db, `groups/${groupId}/users`);
-  const userSnapshot = await getDocs(userRef);
-  let users = userSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-  users = await Promise.all(
-    users.map(async (user) => ({
-      userInfo: await getDoc(doc(db, `users/${user.id}`)),
-      role: user.role,
-    }))
-  );
-
-  users = users.map((user) => ({
-    id: user.id,
-    ...user.userInfo.data(),
-    role: user.role,
-  }));
-  return users;
-};
-
-const getUserGroups = async (teamId) => {
-  const groupsRef = collection(
-    db,
-    `users/${auth.currentUser.uid}/teams/${teamId}/groups`
-  );
-  const snapshot = await getDocs(groupsRef);
-  const groupIds = snapshot.docs.map((d) => d.id);
-  let groups = await Promise.all(
-    groupIds.map(async (id) => await getDoc(doc(db, `groups/${id}`)))
-  );
-
-  groups = await Promise.all(
-    groups.map(async (group) => ({
-      id: group.id,
-      ...group.data(),
-      users: await getGroupUsers(group.id),
-    }))
-  );
-  return groups;
-};
-
-
 
 const addTeamMember = async (userId, teamId) => {
   const batch = writeBatch(db);
@@ -239,9 +197,7 @@ export {
   getTeamById,
   getGroupQuantity,
   getTeamMembersQuantity,
-  getUserGroups,
   addTeamMember,
   removeTeamMember,
   getTeamMembers,
-  getGroupUsers,
 };
