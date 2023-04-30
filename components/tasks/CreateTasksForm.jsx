@@ -2,12 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/auth/AuthContext";
 import { createTask } from "../../utils/api/tasks";
 import { useRouter } from "next/router";
-import {
-  getAuthsTeams,
-} from "../../utils/api/teams";
-import {
-  fetchGroups,
-} from "../../utils/api/group";
+import { getAuthsTeams } from "../../utils/api/teams";
+import { fetchGroups } from "../../utils/api/group";
 
 const CreateTasksForm = ({
   closeModal,
@@ -85,7 +81,7 @@ const CreateTasksForm = ({
     // }
   }, []);
 
-  console.log('TassssK; ', task)
+  console.log("TassssK; ", task);
 
   return (
     <>
@@ -127,33 +123,34 @@ const CreateTasksForm = ({
             : null}
         </div>
       </div>
-      {(header !== "Groups" && header !== "Teams" && header !== "") || submitted && (
-        <form>
-          <div className="w-full mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
-            <div className="px-4 py-2 bg-white  dark:bg-gray-800">
-              <label for="editor" className="sr-only">
-                Publish post
-              </label>
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                id="editor"
-                rows="8"
-                className="block w-full px-0 text-sm text-gray-800 focus:outline-none bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
-                placeholder="What are you working on today?"
-                required
-              ></textarea>
+      {(header !== "Groups" && header !== "Teams" && header !== "") ||
+        (submitted && (
+          <form>
+            <div className="w-full mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+              <div className="px-4 py-2 bg-white  dark:bg-gray-800">
+                <label for="editor" className="sr-only">
+                  Publish post
+                </label>
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  id="editor"
+                  rows="8"
+                  className="block w-full px-0 text-sm text-gray-800 focus:outline-none bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
+                  placeholder="What are you working on today?"
+                  required
+                ></textarea>
+              </div>
             </div>
-          </div>
-          <button
-            onClick={submitTasks}
-            type="submit"
-            className="inline-flex items-center px-10 py-2.5 text-sm font-medium text-center text-white bg-blue-400 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-600 transition ease-in-out duration-200"
-          >
-            Post
-          </button>
-        </form>
-      )}
+            <button
+              onClick={submitTasks}
+              type="submit"
+              className="inline-flex items-center px-10 py-2.5 text-sm font-medium text-center text-white bg-blue-400 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-600 transition ease-in-out duration-200"
+            >
+              Post
+            </button>
+          </form>
+        ))}
     </>
   );
 };

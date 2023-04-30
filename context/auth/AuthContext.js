@@ -181,6 +181,8 @@ export function AuthProvider({ children }) {
     }
   };
 
+  console.log('Auth C: ', AuthContext.Provider)
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (userCredentials) => {
       if (userCredentials) {
@@ -213,6 +215,8 @@ export function AuthProvider({ children }) {
 
     return unsubscribe;
   }, []);
+
+
 
   const value = {
     authUser,

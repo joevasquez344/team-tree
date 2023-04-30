@@ -167,7 +167,7 @@ const clockOut = async (authId) => {
   return time;
 };
 
-export {
+{
   getAppUsers,
   getUserById,
   getUserByUsername,
@@ -176,5 +176,5 @@ export {
   getUserByEmail,
   createUser,
   clockIn,
-  clockOut,
+  clockOut
 };
