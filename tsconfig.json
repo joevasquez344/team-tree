@@ -39,7 +39,7 @@
     "components/users/AvatarRow.jsx",
     "components/layout/Modal.jsx",
     "components/teams/CreateTeamForm.jsx",
-    "components/layout/Navbar/Navbar.tsx",
+    "components/layout/Navbar/Navbar.jsx",
     "components/groups/Groups.jsx",
     "components/layout/Sidebar/Sidebar.jsx",
     "pages/register.jsx",

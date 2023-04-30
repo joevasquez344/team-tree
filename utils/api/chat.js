@@ -14,7 +14,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db, auth } from "../../firebase/config";
-import { isTeamMember } from "./teams";
+import { isTeamMember } from "./helpers";
 
 const fetchDirectChat = async (username, teamId) => {
   const usersRef = collection(db, "users");

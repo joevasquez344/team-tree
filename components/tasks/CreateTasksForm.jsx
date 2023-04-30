@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/auth/AuthContext";
 import { createTask } from "../../utils/api/tasks";
 import { useRouter } from "next/router";
-import { useTeams } from "../../context/TeamsContext";
+import {
+  getAuthsTeams,
+} from "../../utils/api/teams";
 import {
   fetchGroups,
-  getAuthsTeams,
-  getUserGroups,
-} from "../../utils/api/teams";
+} from "../../utils/api/group";
 
 const CreateTasksForm = ({
   closeModal,

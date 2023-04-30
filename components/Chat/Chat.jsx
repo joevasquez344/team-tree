@@ -1,17 +1,14 @@
 import React, { useRef, useState, useEffect } from "react";
 import AvatarDefault from "../users/AvatarDefault";
-import Skeleton from "react-loading-skeleton";
 import { useTeams } from "../../context/TeamsContext";
-import { input } from "@material-tailwind/react";
 import moment from "moment";
-import styles from "./Chat.module.css";
 import { useRouter } from "next/router";
 import ChatError from "./ChatError";
 import ChatSkeleton from './ChatSkeleton'
 
 
 // Todos
-//  1. Capture live updates to reflect on clients for a user editing their nessage
+//  1. Capture live updates to reflect on clients for a user editing their message
 const Chat = ({ messages, reply }) => {
   const [hover, setHover] = useState(-1);
   const [inputEl, setInputEl] = useState(-1);
@@ -19,6 +16,11 @@ const Chat = ({ messages, reply }) => {
   const [deletePrompt, setDeletePrompt] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState(null);
   const {
+
+    chatEndRef,
+    chatStartRef,
+    chatLoading,
+
     editTeamMessage,
     editGroupMessage,
     editDirectMessage,
@@ -26,12 +28,7 @@ const Chat = ({ messages, reply }) => {
     deleteGroupMessage,
     deleteDirectMessage,
     convertMessages,
-    chatEndRef,
-    chatStartRef,
     scrollToBottom,
-    chatLoading,
-    team,
-    group,
   } = useTeams();
   const ref = useRef(null);
   const router = useRouter();
@@ -177,8 +174,7 @@ const Chat = ({ messages, reply }) => {
           )}
           {chatLoading ? (
             <ChatSkeleton />
-              ))}
-            </div>
+            
           ) : (
             convertMessages(messages ? messages : [])?.map((item) => (
               <div key={item.id}>

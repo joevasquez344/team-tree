@@ -1,12 +1,8 @@
-import { useRouter } from "next/router";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useAuth } from "../../../context/auth/AuthContext";
 import useNavbar from "./useNavbar";
-import ModalOverlay from '../ModalOverlay'
-import TeamsPopup from "../../teams/TeamsPopup";
 import AvatarPopup from "../../users/AvatarPopup.jsx";
 import { useTeams } from "../../../context/TeamsContext";
-import AddButton from "../../buttons/AddButton";
 import Popup from "../../Popup";
 import NotificationList from '../../notifications/NotificationList'
 import NotificationIcon from './NotificationIcon';
@@ -41,7 +37,7 @@ const Navbar = () => {
   } = useNavbar();
   const { teams } = useTeams();
   const { authUser, authLayout } = useAuth();
-
+console.log("Working")
   if (!authUser && !authLayout) return null
 
   return (

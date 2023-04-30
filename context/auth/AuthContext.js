@@ -27,7 +27,8 @@ import {
   getUserById,
 } from "../../utils/api/users";
 import { useRouter } from "next/router";
-import { getAuthsTeams, getUserGroups } from "../../utils/api/teams";
+import { getAuthsTeams } from "../../utils/api/teams";
+import { getUserGroups } from "../../utils/api/group";
 
 export const AuthContext = createContext();
 

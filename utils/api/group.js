@@ -1,20 +1,20 @@
 import {
-    doc,
-    getDoc,
-    collection,
-    getDocs,
-    addDoc,
-    setDoc,
-    writeBatch,
-    query,
-    where,
-    orderBy,
-    updateDoc,
-    serverTimestamp,
-    deleteDoc,
-  } from "firebase/firestore";
-  import { db, auth } from "../../firebase/config";
-import { fetchGroupChat } from "./chat";
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  addDoc,
+  setDoc,
+  writeBatch,
+  query,
+  where,
+  orderBy,
+  updateDoc,
+  serverTimestamp,
+  deleteDoc,
+} from "firebase/firestore";
+import { db, auth } from "../../firebase/config";
+import { fetchGroupChat, createGroupChat } from "./chat";
 import { isGroupMember } from "./helpers";
 
 export const createGroup = async (
@@ -92,134 +92,133 @@ export const getGroupById = async (groupId) => {
 };
 
 export const addGroupMember = async (userId, teamId, groupId) => {
-    const batch = writeBatch(db);
-    const authId = auth.currentUser.uid;
-  
-    const userRef = doc(db, `users/${userId}`);
-    const teamRef = doc(db, `teams/${teamId}`);
-    const groupRef = doc(db, `groups/${groupId}`);
-    const teamUserRef = doc(db, `teams/${teamId}/users/${userId}`);
-    const groupUserRef = doc(db, `groups/${groupId}/users/${userId}`);
-    const userGroupRef = doc(db, `users/${userId}/groups/${groupId}`);
-    const userTeamGroupRef = doc(
-      db,
-      `users/${userId}/teams/${teamId}/groups/${groupId}`
-    );
-  
-    const userDoc = await getDoc(userRef);
-    const teamDoc = await getDoc(teamRef);
-    const groupDoc = await getDoc(groupRef);
-    const teamUserDoc = await getDoc(teamUserRef);
-  
-    const teamSnapshot = teamDoc.data();
-    const teamCreatorId = teamSnapshot.creatorId;
-  
-    const groupSnapshot = groupDoc.data();
-    const groupCreatorId = groupSnapshot.creatorId;
-  
-    const userIsTeamMember = teamUserDoc.exists();
-  
-    if (
-      userDoc.exists() &&
-      teamDoc.exists() &&
-      groupDoc.exists() &&
-      (teamCreatorId === authId || groupCreatorId === authId)
-    ) {
-      if (userIsTeamMember) {
-        batch.set(userGroupRef);
-        batch.set(userTeamGroupRef);
-        batch.set(groupUserRef);
-      } else {
-        return alert("User does not belong to this team");
-      }
-    } else {
-      return alert("Team, Group, or User does not exist");
-    }
-  };
-  export const removeGroupMember = async (userId, teamId, groupId) => {
-    const batch = writeBatch(db);
-    const authId = auth.currentUser.uid;
-  
-    const userRef = doc(db, `users/${userId}`);
-    const teamRef = doc(db, `teams/${teamId}`);
-    const groupRef = doc(db, `groups/${groupId}`);
-    const teamUserRef = doc(db, `teams/${teamId}/users/${userId}`);
-    const groupUserRef = doc(db, `groups/${groupId}/users/${userId}`);
-    const userGroupRef = doc(db, `users/${userId}/groups/${groupId}`);
-    const userTeamGroupRef = doc(
-      db,
-      `users/${userId}/teams/${teamId}/groups/${groupId}`
-    );
-  
-    const userDoc = await getDoc(userRef);
-    const teamDoc = await getDoc(teamRef);
-    const groupDoc = await getDoc(groupRef);
-    const teamUserDoc = await getDoc(teamUserRef);
-  
-    const teamSnapshot = teamDoc.data();
-    const teamCreatorId = teamSnapshot.creatorId;
-  
-    const groupSnapshot = groupDoc.data();
-    const groupCreatorId = groupSnapshot.creatorId;
-  
-    const userIsTeamMember = teamUserDoc.exists();
-  
-    if (
-      userDoc.exists() &&
-      teamDoc.exists() &&
-      groupDoc.exists() &&
-      (teamCreatorId === authId || groupCreatorId === authId)
-    ) {
-      if (userIsTeamMember) {
-        batch.delete(userGroupRef);
-        batch.delete(userTeamGroupRef);
-        batch.delete(groupUserRef);
-      } else {
-        return alert("User does not belong to this team");
-      }
-    } else {
-      return alert("Team, Group, or User does not exist");
-    }
-  };
+  const batch = writeBatch(db);
+  const authId = auth.currentUser.uid;
 
-  export const getGroupUsers = async (groupId) => {
-    const userRef = collection(db, `groups/${groupId}/users`);
-    const userSnapshot = await getDocs(userRef);
-    let users = userSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-  
-    users = await Promise.all(
-      users.map(async (user) => ({
-        userInfo: await getDoc(doc(db, `users/${user.id}`)),
-        role: user.role,
-      }))
-    );
-  
-    users = users.map((user) => ({
-      id: user.id,
-      ...user.userInfo.data(),
+  const userRef = doc(db, `users/${userId}`);
+  const teamRef = doc(db, `teams/${teamId}`);
+  const groupRef = doc(db, `groups/${groupId}`);
+  const teamUserRef = doc(db, `teams/${teamId}/users/${userId}`);
+  const groupUserRef = doc(db, `groups/${groupId}/users/${userId}`);
+  const userGroupRef = doc(db, `users/${userId}/groups/${groupId}`);
+  const userTeamGroupRef = doc(
+    db,
+    `users/${userId}/teams/${teamId}/groups/${groupId}`
+  );
+
+  const userDoc = await getDoc(userRef);
+  const teamDoc = await getDoc(teamRef);
+  const groupDoc = await getDoc(groupRef);
+  const teamUserDoc = await getDoc(teamUserRef);
+
+  const teamSnapshot = teamDoc.data();
+  const teamCreatorId = teamSnapshot.creatorId;
+
+  const groupSnapshot = groupDoc.data();
+  const groupCreatorId = groupSnapshot.creatorId;
+
+  const userIsTeamMember = teamUserDoc.exists();
+
+  if (
+    userDoc.exists() &&
+    teamDoc.exists() &&
+    groupDoc.exists() &&
+    (teamCreatorId === authId || groupCreatorId === authId)
+  ) {
+    if (userIsTeamMember) {
+      batch.set(userGroupRef);
+      batch.set(userTeamGroupRef);
+      batch.set(groupUserRef);
+    } else {
+      return alert("User does not belong to this team");
+    }
+  } else {
+    return alert("Team, Group, or User does not exist");
+  }
+};
+export const removeGroupMember = async (userId, teamId, groupId) => {
+  const batch = writeBatch(db);
+  const authId = auth.currentUser.uid;
+
+  const userRef = doc(db, `users/${userId}`);
+  const teamRef = doc(db, `teams/${teamId}`);
+  const groupRef = doc(db, `groups/${groupId}`);
+  const teamUserRef = doc(db, `teams/${teamId}/users/${userId}`);
+  const groupUserRef = doc(db, `groups/${groupId}/users/${userId}`);
+  const userGroupRef = doc(db, `users/${userId}/groups/${groupId}`);
+  const userTeamGroupRef = doc(
+    db,
+    `users/${userId}/teams/${teamId}/groups/${groupId}`
+  );
+
+  const userDoc = await getDoc(userRef);
+  const teamDoc = await getDoc(teamRef);
+  const groupDoc = await getDoc(groupRef);
+  const teamUserDoc = await getDoc(teamUserRef);
+
+  const teamSnapshot = teamDoc.data();
+  const teamCreatorId = teamSnapshot.creatorId;
+
+  const groupSnapshot = groupDoc.data();
+  const groupCreatorId = groupSnapshot.creatorId;
+
+  const userIsTeamMember = teamUserDoc.exists();
+
+  if (
+    userDoc.exists() &&
+    teamDoc.exists() &&
+    groupDoc.exists() &&
+    (teamCreatorId === authId || groupCreatorId === authId)
+  ) {
+    if (userIsTeamMember) {
+      batch.delete(userGroupRef);
+      batch.delete(userTeamGroupRef);
+      batch.delete(groupUserRef);
+    } else {
+      return alert("User does not belong to this team");
+    }
+  } else {
+    return alert("Team, Group, or User does not exist");
+  }
+};
+
+export const getGroupUsers = async (groupId) => {
+  const userRef = collection(db, `groups/${groupId}/users`);
+  const userSnapshot = await getDocs(userRef);
+  let users = userSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+  users = await Promise.all(
+    users.map(async (user) => ({
+      userInfo: await getDoc(doc(db, `users/${user.id}`)),
       role: user.role,
-    }));
-    return users;
-  };
-  
-  export const getUserGroups = async (teamId) => {
-    const groupsRef = collection(
-      db,
-      `users/${auth.currentUser.uid}/teams/${teamId}/groups`
-    );
-    const snapshot = await getDocs(groupsRef);
-    const groupIds = snapshot.docs.map((d) => d.id);
-    let groups = await Promise.all(
-      groupIds.map(async (id) => await getDoc(doc(db, `groups/${id}`)))
-    );
-  
-    groups = await Promise.all(
-      groups.map(async (group) => ({
-        id: group.id,
-        ...group.data(),
-        users: await getGroupUsers(group.id),
-      }))
-    );
-    return groups;
-  };
-  
+    }))
+  );
+
+  users = users.map((user) => ({
+    id: user.id,
+    ...user.userInfo.data(),
+    role: user.role,
+  }));
+  return users;
+};
+
+export const getUserGroups = async (teamId) => {
+  const groupsRef = collection(
+    db,
+    `users/${auth.currentUser.uid}/teams/${teamId}/groups`
+  );
+  const snapshot = await getDocs(groupsRef);
+  const groupIds = snapshot.docs.map((d) => d.id);
+  let groups = await Promise.all(
+    groupIds.map(async (id) => await getDoc(doc(db, `groups/${id}`)))
+  );
+
+  groups = await Promise.all(
+    groups.map(async (group) => ({
+      id: group.id,
+      ...group.data(),
+      users: await getGroupUsers(group.id),
+    }))
+  );
+  return groups;
+};

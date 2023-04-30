@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { getGroupById, getGroupUsers } from "../../../../../utils/api/teams";
+import { getGroupById, getGroupUsers } from "../../../../../utils/api/group";
 import ProtectedRoute from "../../../../../components/ProtectedRoute";
 import Loader from "../../../../../components/Loader";
 import { useAuth } from "../../../../../context/auth/AuthContext";

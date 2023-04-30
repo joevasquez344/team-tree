@@ -25,6 +25,7 @@ const getUserById = async (userId) => {
   const ref = doc(db, `users/${userId}`);
   const snapshot = await getDoc(ref);
   const user = { id: snapshot.id, ...snapshot.data() };
+  console.log('hello')
 
   return user;
 };

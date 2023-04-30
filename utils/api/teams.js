@@ -11,13 +11,9 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db, auth } from "../../firebase/config";
-import {
- fetchTeamChat,
- createTeamChat
-} from "./chat";
-import {isTeamMember} from './helpers'
-import {sendTeamInvites} from './invites'
-
+import { fetchTeamChat, createTeamChat } from "./chat";
+import { isTeamMember } from "./helpers";
+import { sendTeamInvites } from "./invites";
 
 const createTeam = async (authUser, teamName, authRole, inviteList) => {
   const userRef = doc(db, `users/${authUser.id}`);
@@ -54,9 +50,6 @@ const createTeam = async (authUser, teamName, authRole, inviteList) => {
   // batch.set(doc(db, `users/${authUser.id}/teams/${createdTeam.id}`));
 };
 
-
-
-
 // getTeamMessages is not longer in use, same with getGroupMessages, instead look down below
 const getTeamById = async (id) => {
   const isMember = await isTeamMember(id, auth.currentUser.uid);
@@ -88,8 +81,6 @@ const getTeamById = async (id) => {
   }
 };
 
-
-
 const getAuthsTeams = async () => {
   const teamDocs = collection(db, `users/${auth?.currentUser?.uid}/teams`);
   const teamSnapshot = await getDocs(teamDocs);
@@ -104,11 +95,9 @@ const getAuthsTeams = async () => {
   );
 
   teams = teams?.map((team) => ({ id: team.id, ...team.data() }));
-console.log('teamsss: ', teams)
+
   return teams;
 };
-
-
 
 const addTeamMember = async (userId, teamId) => {
   const batch = writeBatch(db);
@@ -160,7 +149,6 @@ const removeTeamMember = async (userId, teamId) => {
     return alert("Team or User does not exist");
   }
 };
-
 
 const getGroupQuantity = async (teamId) => {
   const ref = collection(db, `groups`);

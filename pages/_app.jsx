@@ -1,14 +1,12 @@
 import "../styles/globals.css";
 // import type { AppProps } from 'next/app'
-import { AuthProvider, useAuth } from "../context/auth/AuthContext";
+import { AuthProvider } from "../context/auth/AuthContext";
 import Navbar from "../components/layout/Navbar/Navbar";
 import { TeamsProvider } from "../context/TeamsContext";
-import { NotificationsProvider } from "../context/NotificationsContext";
 import Sidebar from "../components/layout/Sidebar/Sidebar";
 import SidebarContainer from "../components/layout/Sidebar/SidebarContainer";
 import MobileSidebar from "../components/layout/Sidebar/MobileSidebar";
 import MobileNavbar from "../components/layout/Navbar/MobileNavbar";
-import { useRouter } from "next/router";
 import ProtectedComponent from "../components/ProtectedComponent";
 
 function MyApp({ Component, pageProps }) {

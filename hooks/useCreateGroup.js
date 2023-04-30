@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/auth/AuthContext";
 import { getUserByEmail, getUsersByPosition } from "../utils/api/users";
-import { createGroup, createTeam } from "../utils/api/teams";
-import { useTeams } from "../context/TeamsContext";
+import { createGroup } from "../utils/api/group";
 
 const useCreateGroup = () => {
   const router = useRouter();

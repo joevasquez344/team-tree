@@ -1,29 +1,19 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../context/auth/AuthContext";
-import { useTeams } from "../../../context/TeamsContext";
 import AddButton from "../../buttons/AddButton";
-import FilterButton from "../../buttons/FilterButton";
-import Avatar from "../../users/Avatar";
 import CreateTeamForm from "../../../components/forms/CreateTeamForm";
-import Teams from "./Teams";
 import Groups from "./Groups";
-import Popup from "../../Popup";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { Tooltip } from "@material-tailwind/react";
-import TeamsPopup from "../../teams/TeamsPopup";
-import ModalOverlay from "../ModalOverlay";
 import Button from "../../buttons/Button";
 import CollapseButton from "../../buttons/CollapseButton.tsx";
 import ExpandButton from "../../buttons/ExpandButton";
 import ProtectedComponent from "../../ProtectedComponent";
 import {
-  getAuthsTeams,
   getTeamById,
-  getTeamGroups,
-  getUserGroups,
 } from "../../../utils/api/teams";
+import { getTeamGroups } from "../../../utils/api/group";
 import useCreateTeam from "../../../hooks/useCreateTeam2";
 import useCreateGroup from "../../../hooks/useCreateGroup";
 
@@ -41,7 +31,6 @@ const Sidebar = ({ teams }) => {
   //   groupsLoading,
   // } = useTeams();
   const router = useRouter();
-  const { authLayout } = useAuth();
   const [teamHeader, setTeamHeader] = useState(null);
   const [popup, setPopup] = useState(false);
   const [teamsPopup, setTeamsPopup] = useState(false);
@@ -50,18 +39,7 @@ const Sidebar = ({ teams }) => {
 
   const { createTeamPopup, setCreateTeamPopup } = useCreateTeam();
   const {
-    form,
-    handleInputChange,
-    handleCreateGroup,
-    fetchUsersByPosition,
-    suggestedUsers,
-    removeUserFromInviteList,
-    inviteList,
-    searchInput,
-    searchUser,
-    handleSearchInput,
-    searchedUser,
-    searchedUserError,
+
     groups,
     setGroups,
     createGroupPopup,
