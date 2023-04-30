@@ -1,0 +1,7 @@
+.chatMessage {
+    display:none;
+}
+
+.chatMessage:first-child {
+    display:block !important
+}
