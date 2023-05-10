@@ -13,8 +13,7 @@ import {
   serverTimestamp,
   deleteDoc,
 } from "firebase/firestore";
-import { db, auth } from "../../firebase/config";
-import { isTeamMember } from "./teams";
+import { db } from "../../firebase/config";
 
 const createTeamMessage = async (authUser, teamId, text, type, chatId) => {
   const messagesRef = collection(db, "messages");
@@ -28,7 +27,9 @@ const createTeamMessage = async (authUser, teamId, text, type, chatId) => {
     chatRef,
     text,
     type,
-    replyTo: null,
+    replyToMessage: null,
+    replyToRef: null,
+    replyToText: null,
     createdAt: serverTimestamp(),
     edited: false,
   });
@@ -41,6 +42,9 @@ const createTeamMessage = async (authUser, teamId, text, type, chatId) => {
     userRef,
     teamRef,
     chatRef,
+    replyToMessage: null,
+    replyToRef: null,
+    replyToText: null,
     text,
     type,
     replies: [],
@@ -67,7 +71,8 @@ const createTeamReply = async (
     chatRef,
     text,
     type,
-    replyTo: doc(db, `messages/${replyTo.id}`),
+    replyToRef: doc(db, `messages/${replyTo.id}`),
+    replyToMessage: replyTo,
     replyToText: replyTo.text,
     createdAt: serverTimestamp(),
     edited: false,
@@ -88,13 +93,13 @@ const createTeamReply = async (
     chatRef,
     text,
     type,
-    replyTo,
+    replyToMessage: replyTo,
     replyToText: replyTo.text,
+    replyToRef,
     edited: false,
     createdAt,
   };
 };
-
 
 const createGroupMessage = async (authUser, groupId, text, type, chatId) => {
   const messagesRef = collection(db, "messages");
@@ -108,7 +113,9 @@ const createGroupMessage = async (authUser, groupId, text, type, chatId) => {
     chatRef,
     text,
     type,
-    replyTo: null,
+    replyToRef: null,
+    replyToMessage: null,
+    replyToText: null,
     createdAt: serverTimestamp(),
     edited: false,
   });
@@ -121,10 +128,14 @@ const createGroupMessage = async (authUser, groupId, text, type, chatId) => {
     userRef,
     groupRef,
     chatRef,
+    replyToRef: null,
+    replyToMessage: null,
+    replyToText: null,
     text,
     type,
     replies: [],
     createdAt,
+    edited: false,
   };
 };
 
@@ -148,7 +159,8 @@ const createGroupReply = async (
     chatRef,
     text,
     type,
-    replyTo: doc(db, `messages/${replyTo.id}`),
+    replyToRef: doc(db, `messages/${replyTo.id}`),
+    replyToMessage: replyTo,
     replyToText: replyTo.text,
     createdAt: serverTimestamp(),
     edited: false,
@@ -169,7 +181,8 @@ const createGroupReply = async (
     chatRef,
     text,
     type,
-    replyTo,
+    replyToRef,
+    replyToMessage: replyTo,
     replyToText: replyTo.text,
     edited: false,
     createdAt,
@@ -188,7 +201,9 @@ const createDirectMessage = async (authUser, teamId, text, type, chatId) => {
     chatRef,
     text,
     type,
-    replyTo: null,
+    replyToRef: null,
+    replyToMessage: null,
+    replyToText: null,
     createdAt: serverTimestamp(),
     edited: false,
   });
@@ -203,11 +218,14 @@ const createDirectMessage = async (authUser, teamId, text, type, chatId) => {
     chatRef,
     text,
     type,
+    replyToRef: null,
+    replyToMessage: null,
+    replyToText: null,
     replies: [],
     createdAt,
+    edited: false,
   };
 };
-
 
 const getMessageById = async (id) => {
   const ref = doc(db, `messages/${id}`);
@@ -237,9 +255,14 @@ const getMessageTimestamp = async (id) => {
 
 const getReply = async (document) => {
   const data = document.data();
-  const replyToRef = data.replyTo;
-  let message =
-    replyToRef === null ? null : await getDoc(doc(db, replyToRef.path));
+  const replyToRef = data.replyToRef;
+
+  if (replyToRef === null) {
+    return null;
+  }
+
+  let message = await getDoc(doc(db, replyToRef.path));
+  
 
   if (message?.exists()) {
     message = {
@@ -253,7 +276,9 @@ const getReply = async (document) => {
       user: { id: message.user.id, ...message.user.data() },
     };
     return message;
-  } 
+  } else {
+    return null
+  }
 };
 
 const editMessage = async (messageId, text) => {
@@ -287,7 +312,6 @@ const editMessage = async (messageId, text) => {
 //   return messages;
 // };
 
-
 export {
   createTeamMessage,
   createTeamReply,
@@ -297,6 +321,5 @@ export {
   getMessageById,
   editMessage,
   deleteMessage,
+  getReply,
 };
-
-

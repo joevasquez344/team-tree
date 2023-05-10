@@ -44,7 +44,6 @@ export function AuthProvider({ children }) {
   const [theme, setTheme] = useState({});
   const [groups, setGroups] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const [notification, setNotification] = useState(null);
   const [sentInvites, setSentInvites] = useState([]);
   const [authLayout, setAuthLayout] = useState(false);
 
@@ -70,7 +69,7 @@ export function AuthProvider({ children }) {
   const getTeamGroups = async (team) => {
     setGroupsLoading(true);
 
-    const groups = await getUserGroups(team.id);
+    const groups = await getUserGroups(team.id, authUser.id);
     setGroups(groups);
     setGroupsLoading(false);
   };
@@ -112,7 +111,6 @@ export function AuthProvider({ children }) {
     if (userCredentials) {
       const user = await getUserById(userCredentials.user.uid);
       const teams = await getAuthsTeams();
-      console.log('teams: ', teams)
       if (user.id) {
         setAuthUser(user);
         router.push(`/teams/${teams[0]?.id}/chat`);
@@ -207,8 +205,8 @@ export function AuthProvider({ children }) {
         // });
         setLoading(false);
       } else {
-        // logout();
-        setAuthUser(null)
+        logout();
+        // setAuthUser(null)
         setLoading(false);
       }
     });

@@ -10,7 +10,7 @@ const SidebarContainer = () => {
   const { teams, setTeams } = useCreateTeam();
 
   const getTeams = async () => {
-    const teams = await getAuthsTeams();
+    const teams = await getAuthsTeams(authUser.id);
     setTeams(teams);
 
     console.log("SIDEBAR - Auths Teams: ", teams);

@@ -58,7 +58,6 @@ const [teams, setTeams] = useState([]);
     }
 
     const response = await getUserByEmail(email);
-
     if (response.error === true && response.errorCode === 1001) {
       setSearchedUserError(response.payload);
     }

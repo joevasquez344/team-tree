@@ -15,12 +15,13 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "../../firebase/config";
 import { isTeamMember } from "./helpers";
+import { getReply } from "./messages";
 
-const fetchDirectChat = async (username, teamId) => {
+const fetchDirectChat = async (username, teamId, authId) => {
   const usersRef = collection(db, "users");
   const teamRef = doc(db, `teams/${teamId}`);
 
-  const isMember = await isTeamMember(teamId, auth.currentUser.uid);
+  const isMember = await isTeamMember(teamId, authId);
 
   if (!isMember) return;
 
@@ -35,7 +36,7 @@ const fetchDirectChat = async (username, teamId) => {
 
   if (user) {
     const userRef = doc(db, `users/${user.id}`);
-    const authRef = doc(db, `users/${auth.currentUser.uid}`);
+    const authRef = doc(db, `users/${authId}`);
 
     const chatsRef = collection(db, "chats");
     const chatsQuery = query(
@@ -46,13 +47,12 @@ const fetchDirectChat = async (username, teamId) => {
     );
     const chatsSnapshot = await getDocs(chatsQuery);
     if (chatsSnapshot.empty) {
-      await createChat("dm", user.id, teamId);
+      await createDirectChat(user.id, authId);
       const chat = await getChat("dm", user.id, teamId);
 
-      return chat;''
+      return chat;
     } else {
       const chat = await getChat("dm", user.id, teamId);
-      console.log("Chat: ", chat);
 
       return chat;
     }
@@ -60,34 +60,34 @@ const fetchDirectChat = async (username, teamId) => {
 };
 
 const fetchTeamChat = async (teamId) => {
-    const teamRef = doc(db, `teams/${teamId}`);
-    const chatsRef = collection(db, "chats");
-    const chatsQuery = query(chatsRef, where("teamRef", "==", teamRef));
-    const chatsSnapshot = await getDocs(chatsQuery);
-  
-    const chat = chatsSnapshot.docs.map((chat) => ({
-      id: chat.id,
-      ...chat.data(),
-    }))[0];
-  
-    const messages = await getChatMessages(chat?.id);
-    return { ...chat, messages };
-  };
-  
-  const fetchGroupChat = async (groupId) => {
-            const groupRef = doc(db, `groups/${groupId}`);
-        const chatsRef = collection(db, "chats");
-        const chatsQuery = query(chatsRef, where("groupRef", "==", groupRef));
-        const chatsSnapshot = await getDocs(chatsQuery);
-  
-        const chat = chatsSnapshot.docs.map((chat) => ({
-          id: chat.id,
-          ...chat.data(),
-        }))[0];
-  
-        const messages = await getChatMessages(chat?.id);
-        return { ...chat, messages };
-  }
+  const teamRef = doc(db, `teams/${teamId}`);
+  const chatsRef = collection(db, "chats");
+  const chatsQuery = query(chatsRef, where("teamRef", "==", teamRef));
+  const chatsSnapshot = await getDocs(chatsQuery);
+  console.log("Team Id: ", teamId);
+  const chat = chatsSnapshot.docs.map((chat) => ({
+    id: chat.id,
+    ...chat.data(),
+  }))[0];
+
+  const messages = await getChatMessages(chat?.id);
+  return { ...chat, messages };
+};
+
+const fetchGroupChat = async (groupId) => {
+  const groupRef = doc(db, `groups/${groupId}`);
+  const chatsRef = collection(db, "chats");
+  const chatsQuery = query(chatsRef, where("groupRef", "==", groupRef));
+  const chatsSnapshot = await getDocs(chatsQuery);
+
+  const chat = chatsSnapshot.docs.map((chat) => ({
+    id: chat.id,
+    ...chat.data(),
+  }))[0];
+
+  const messages = await getChatMessages(chat?.id);
+  return { ...chat, messages };
+};
 
 const getChatMessages = async (chatId) => {
   const messagesRef = collection(db, "messages");
@@ -95,20 +95,25 @@ const getChatMessages = async (chatId) => {
   const messagesQuery = query(
     messagesRef,
     where("chatRef", "==", chatRef),
-    orderBy("createdAt", "==", "asc")
+    orderBy("createdAt", "asc")
   );
 
   const messagesSnapshot = await getDocs(messagesQuery);
+
+  if (messagesSnapshot.empty) return [];
   let messages = await Promise.all(
     messagesSnapshot.docs.map(async (d) => {
       return {
         id: d.id,
         ...d.data(),
         user: await getDoc(doc(db, `users/${d.data().userRef.id}`)),
-        replyTo: await getReply(d),
+        replyToMessage: await getReply(d),
       };
     })
   );
+
+
+
 
   messages = messages.map((message) => ({
     ...message,
@@ -116,28 +121,27 @@ const getChatMessages = async (chatId) => {
   }));
 
   messages = messages.map((message) => {
-    if (message.replyTo?.id) {
-      const match = messages.find((m) => m.id === message.replyTo.id);
+    if (message.replyToMessage?.id) {
+      const match = messages.find((m) => m.id === message.replyToMessage.id);
       if (match) {
         if (match.text !== message.replyToText) {
-          message.replyTo.isEdited = true;
+          message.replyToMessage.isEdited = true;
         } else {
-          message.replyTo.isEdited = false;
+          message.replyToMessage.isEdited = false;
         }
-      } else {
-        message.replyTo = null;
-      }
+      } 
     }
 
     return message;
   });
 
+
   return messages;
 };
 
-const createTeamChat = async (teamId) => {
+const createTeamChat = async (teamId, authId) => {
   const chatsRef = collection(db, "chats");
-  const authRef = doc(db, `users/${auth.currentUser.uid}`);
+  const authRef = doc(db, `users/${authId}`);
   const teamRef = doc(db, `teams/${teamId}`);
 
   await addDoc(chatsRef, {
@@ -147,10 +151,10 @@ const createTeamChat = async (teamId) => {
   });
 };
 
-const createGroupChat = async (groupId) => {
+const createGroupChat = async (groupId, authId) => {
   const groupRef = doc(db, `groups/${groupId}`);
   const chatsRef = collection(db, "chats");
-  const authRef = doc(db, `users/${auth.currentUser.uid}`);
+  const authRef = doc(db, `users/${authId}`);
 
   await addDoc(chatsRef, {
     groupRef,
@@ -159,8 +163,8 @@ const createGroupChat = async (groupId) => {
   });
 };
 
-const createDirectChat = async (userId) => {
-  const authRef = doc(db, `users/${auth.currentUser.uid}`);
+const createDirectChat = async (userId, authId) => {
+  const authRef = doc(db, `users/${authId}`);
   const userRef = doc(db, `users/${userId}`);
   const chatsRef = collection(db, "chats");
 
@@ -172,9 +176,9 @@ const createDirectChat = async (userId) => {
   });
 };
 
-const createChat = async (type, id, teamId) => {
+const createChat = async (type, id, teamId, authId) => {
   const chatRef = collection(db, "chats");
-  const authRef = doc(db, `users/${auth.currentUser.uid}`);
+  const authRef = doc(db, `users/${authId}`);
 
   if (type === "team") {
     const teamRef = doc(db, `teams/${id}`);
@@ -210,63 +214,5 @@ export {
   createTeamChat,
   fetchDirectChat,
   fetchTeamChat,
-  fetchGroupChat
+  fetchGroupChat,
 };
-
-
-
-// const getChat = async (type, id, teamId) => {
-//     if (type === "team") {
-//       const teamRef = doc(db, `teams/${id}`);
-//       const chatsRef = collection(db, "chats");
-//       const chatsQuery = query(chatsRef, where("teamRef", "==", teamRef));
-//       const chatsSnapshot = await getDocs(chatsQuery);
-
-//       const chat = chatsSnapshot.docs.map((chat) => ({
-//         id: chat.id,
-//         ...chat.data(),
-//       }))[0];
-
-//       const messages = await getChatMessages(chat?.id);
-//       return { ...chat, messages };
-//     }
-
-//     if (type === "group") {
-//       const groupRef = doc(db, `groups/${id}`);
-//       const chatsRef = collection(db, "chats");
-//       const chatsQuery = query(chatsRef, where("groupRef", "==", groupRef));
-//       const chatsSnapshot = await getDocs(chatsQuery);
-
-//       const chat = chatsSnapshot.docs.map((chat) => ({
-//         id: chat.id,
-//         ...chat.data(),
-//       }))[0];
-
-//       const messages = await getChatMessages(chat?.id);
-//       return { ...chat, messages };
-//     }
-//     if (type === "dm") {
-//       const userRef = doc(db, `users/${id}`);
-//       const authRef = doc(db, `users/${auth.currentUser.uid}`);
-//       if (teamId) {
-//         const chatsRef = collection(db, "chats");
-//         const teamRef = doc(db, `teams/${teamId}`);
-//         const chatsQuery = query(
-//           chatsRef,
-//           where("userRef", "==", userRef),
-//           where("creatorRef", "==", authRef),
-//           where("teamRef", "==", teamRef)
-//         );
-//         const chatsSnapshot = await getDocs(chatsQuery);
-//         const chat = chatsSnapshot.docs.map((chat) => ({
-//           id: chat.id,
-//           ...chat.data(),
-//         }))[0];
-
-//         const messages = await getChatMessages(chat?.id);
-
-//         console.log(chat);
-//         return { ...chat, messages };
-//       }
-//     }
-//   };

@@ -62,7 +62,7 @@ const TeamChat = () => {
     getTeam();
     setAuthLayout(true);
   }, [router.query.teamId]);
-
+console.log("Reply To: ", replyTo)
   if (error) {
     return (
       <div className="w-full h-screen flex justify-center mt-96">
@@ -70,6 +70,8 @@ const TeamChat = () => {
       </div>
     );
   }
+
+  console.log('Team Chat Messages State: ', teamChat?.messages)
 
   return (
     <div className="bg-gray-700">
@@ -92,9 +94,8 @@ const TeamChat = () => {
       <div className="grid grid-cols-12">
         <div className="col-span-10 overflow-y-scroll no-scrollbar h-screen relative">
           <Chat
-            messages={teamChat.messages}
+            messages={teamChat?.messages}
             reply={handleFocusInput}
-            replyTo={replyTo}
           />
 
           <div

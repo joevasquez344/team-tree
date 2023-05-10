@@ -15,12 +15,12 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "../../firebase/config";
 
-export const sendTeamInvites = async (inviteList, team) => {
+export const sendTeamInvites = async (inviteList, team, authId) => {
   await Promise.all(
     inviteList.map(
       async (user) =>
         await addDoc(collection(db, "invites"), {
-          from: auth.currentUser.uid,
+          from: authId,
           to: user.id,
           status: "pending",
           target: "team",
@@ -32,7 +32,7 @@ export const sendTeamInvites = async (inviteList, team) => {
     inviteList.map(
       async (user) =>
         await addDoc(collection(db, `users/${user.id}/invites`), {
-          from: auth.currentUser.uid,
+          from: authId,
           to: user.id,
           status: "pending",
           target: "team",
@@ -41,23 +41,23 @@ export const sendTeamInvites = async (inviteList, team) => {
   );
 };
 
-export const acceptTeamInvite = async (inviteId) => {
+export const acceptTeamInvite = async (inviteId, authId) => {
   await updateDoc(doc(db, `invites/${inviteId}`), {
     status: "accepted",
   });
   await updateDoc(
-    doc(db, `users/${auth.currentUser.uid}/invites/${inviteId}`),
+    doc(db, `users/${authId}/invites/${inviteId}`),
     {
       status: "accepted",
     }
   );
 };
-export const declineTeamInvite = async (inviteId) => {
+export const declineTeamInvite = async (inviteId, authId) => {
   await updateDoc(doc(db, `invites/${inviteId}`), {
     status: "declined",
   });
   await updateDoc(
-    doc(db, `users/${auth.currentUser.uid}/invites/${inviteId}`),
+    doc(db, `users/${authId}/invites/${inviteId}`),
     {
       status: "declined",
     }

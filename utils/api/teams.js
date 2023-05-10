@@ -27,7 +27,7 @@ const createTeam = async (authUser, teamName, authRole, inviteList) => {
   await sendTeamInvites(inviteList, {
     id: createdTeam.id,
     name: teamName,
-  });
+  }, authUser.id);
 
   await setDoc(doc(db, `teams/${createdTeam.id}/users/${authUser.id}`), {
     role: authRole,
@@ -37,7 +37,7 @@ const createTeam = async (authUser, teamName, authRole, inviteList) => {
     role: authRole,
   });
 
-  await createTeamChat(createdTeam.id);
+  await createTeamChat(createdTeam.id, authUser.id);
 
   return {
     id: createdTeam.id,
@@ -51,8 +51,8 @@ const createTeam = async (authUser, teamName, authRole, inviteList) => {
 };
 
 // getTeamMessages is not longer in use, same with getGroupMessages, instead look down below
-const getTeamById = async (id) => {
-  const isMember = await isTeamMember(id, auth.currentUser.uid);
+const getTeamById = async (id, authId) => {
+  const isMember = await isTeamMember(id, authId);
 
   if (!isMember) return false;
 
@@ -67,9 +67,9 @@ const getTeamById = async (id) => {
       arr.map(async (item) => ({
         id: snapshot.id,
         ...snapshot.data(),
-        members: await getTeamMembers(snapshot.id),
+        members: await getTeamMembers(snapshot.id, authId),
         // ------------ Here --------------
-        chat: await fetchTeamChat("team", snapshot.id),
+        // chat: await fetchTeamChat(snapshot.id),
       }))
     );
 
@@ -81,8 +81,8 @@ const getTeamById = async (id) => {
   }
 };
 
-const getAuthsTeams = async () => {
-  const teamDocs = collection(db, `users/${auth?.currentUser?.uid}/teams`);
+const getAuthsTeams = async (authId) => {
+  const teamDocs = collection(db, `users/${authId}/teams`);
   const teamSnapshot = await getDocs(teamDocs);
   const teamIds = teamSnapshot.docs.map((d) => d.id);
 
@@ -99,7 +99,7 @@ const getAuthsTeams = async () => {
   return teams;
 };
 
-const addTeamMember = async (userId, teamId) => {
+const addTeamMember = async (userId, teamId, authId) => {
   const batch = writeBatch(db);
 
   const userRef = doc(db, `users/${userId}`);
@@ -116,7 +116,7 @@ const addTeamMember = async (userId, teamId) => {
   if (
     userDoc.exists() &&
     teamDoc.exists() &&
-    creatorId === auth.currentUser.uid
+    creatorId === authId
   ) {
     batch.set(teamUserRef);
     batch.set(userTeamRef);
@@ -124,7 +124,7 @@ const addTeamMember = async (userId, teamId) => {
     return alert("Team or User does not exist");
   }
 };
-const removeTeamMember = async (userId, teamId) => {
+const removeTeamMember = async (userId, teamId, authId) => {
   const batch = writeBatch(db);
 
   const userRef = doc(db, `users/${userId}`);
@@ -141,7 +141,7 @@ const removeTeamMember = async (userId, teamId) => {
   if (
     userDoc.exists() &&
     teamDoc.exists() &&
-    creatorId === auth.currentUser.uid
+    creatorId === authId
   ) {
     batch.delete(teamUserRef);
     batch.delete(userTeamRef);
@@ -170,7 +170,6 @@ const getTeamMembers = async (teamId) => {
   const ref = collection(db, `teams/${teamId}/users`);
   const snapshot = await getDocs(ref);
   const userIds = snapshot.docs.map((doc) => doc.id);
-  // .filter((doc) => doc.id !== auth.currentUser.uid)
 
   let users = await Promise.all(
     userIds.map(async (id) => await getDoc(doc(db, `users/${id}`)))

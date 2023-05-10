@@ -25,7 +25,7 @@ const getUserById = async (userId) => {
   const ref = doc(db, `users/${userId}`);
   const snapshot = await getDoc(ref);
   const user = { id: snapshot.id, ...snapshot.data() };
-  console.log('hello')
+  console.log("hello");
 
   return user;
 };
@@ -48,8 +48,8 @@ const getUserByEmail = async (email) => {
     payload: user,
   };
 };
-const getTeamMembers = async () => {
-  const teamsRef = collection(db, `users/${auth?.currentUser?.uid}/teams`);
+const getTeamMembers = async (authId) => {
+  const teamsRef = collection(db, `users/${authId}/teams`);
   const teamsSnapshot = await getDocs(teamsRef);
   const teamIds = teamsSnapshot.docs.map((d) => d.id);
   const usersRef = collection(db, `users`);
@@ -167,7 +167,7 @@ const clockOut = async (authId) => {
   return time;
 };
 
-{
+export {
   getAppUsers,
   getUserById,
   getUserByUsername,
@@ -176,5 +176,5 @@ const clockOut = async (authId) => {
   getUserByEmail,
   createUser,
   clockIn,
-  clockOut
+  clockOut,
 };

@@ -26,7 +26,7 @@ export function NotificationsProvider({ children }) {
   useEffect(() => {
     const q = query(
       collection(db, "notifications"),
-      where("to", "==", auth.currentUser.uid)
+      where("to", "==", authUser.id)
     );
     onSnapshot(q, (snapshot) => {
       const notifications = [];

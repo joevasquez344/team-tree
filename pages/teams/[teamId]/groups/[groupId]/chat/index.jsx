@@ -55,9 +55,7 @@ const GroupChat = () => {
 
   const handleUnfocusInput = () => {
     setReplyTo(null);
-    
-  }
-
+  };
 
   // const editMessage = async (messageId, text) => {
   //   await editGroupMessage(messageId, text);
@@ -68,7 +66,6 @@ const GroupChat = () => {
     getGroup();
     setAuthLayout(true);
   }, [router.query.groupId]);
-
 
   if (error) {
     return (
@@ -98,11 +95,7 @@ const GroupChat = () => {
       </div>
       <div className="grid grid-cols-12">
         <div className="col-span-10 overflow-y-scroll no-scrollbar h-screen relative">
-          <Chat
-            messages={groupChat}
-            reply={handleFocusInput}
-            replyTo={replyTo}
-          />
+          <Chat messages={groupChat?.messages} reply={handleFocusInput} />
 
           <div
             className={`absolute bg-gray-700 bottom-24 w-full ${
@@ -180,12 +173,10 @@ const GroupChat = () => {
           <Members members={groupMembers} type="chat" />
         </div>
       </div>
-        <div className="border-l border-l-gray-500 h-screen col-span-2">
-          <Members members={groupMembers} type="chat" />
-        </div>
+      <div className="border-l border-l-gray-500 h-screen col-span-2">
+        <Members members={groupMembers} type="chat" />
       </div>
-    
-    
+    </div>
   );
 };
 

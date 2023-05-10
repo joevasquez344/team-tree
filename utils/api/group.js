@@ -42,7 +42,7 @@ export const createGroup = async (
     doc(db, `users/${authUser.id}/teams/${team.id}/groups/${createdGroup.id}`),
     {}
   );
-  await createGroupChat(createdGroup.id);
+  await createGroupChat(createdGroup.id, authUser.id);
 
   return {
     id: createdGroup.id,
@@ -61,10 +61,10 @@ export const getTeamGroups = async (teamId) => {
   return groups.map((group) => ({ id: group.id, ...group.data() }));
 };
 
-export const fetchGroups = async (teamId) => {
+export const fetchGroups = async (teamId, authId) => {
   const groupsRef = collection(
     db,
-    `users/${auth.currentUser.uid}/teams/${teamId}/groups`
+    `users/${authId}/teams/${teamId}/groups`
   );
   const snapshot = await getDocs(groupsRef);
   const groupIds = snapshot.docs.map((d) => d.id);
@@ -75,8 +75,8 @@ export const fetchGroups = async (teamId) => {
   return groups.map((group) => ({ id: group.id, ...group.data() }));
 };
 
-export const getGroupById = async (groupId) => {
-  const isMember = await isGroupMember(groupId, auth.currentUser.uid);
+export const getGroupById = async (groupId, authId) => {
+  const isMember = await isGroupMember(groupId, authId);
   if (!isMember) return;
 
   const ref = doc(db, `groups/${groupId}`);
@@ -91,9 +91,8 @@ export const getGroupById = async (groupId) => {
   }
 };
 
-export const addGroupMember = async (userId, teamId, groupId) => {
+export const addGroupMember = async (userId, teamId, groupId, authId) => {
   const batch = writeBatch(db);
-  const authId = auth.currentUser.uid;
 
   const userRef = doc(db, `users/${userId}`);
   const teamRef = doc(db, `teams/${teamId}`);
@@ -136,9 +135,8 @@ export const addGroupMember = async (userId, teamId, groupId) => {
     return alert("Team, Group, or User does not exist");
   }
 };
-export const removeGroupMember = async (userId, teamId, groupId) => {
+export const removeGroupMember = async (userId, teamId, groupId, authId) => {
   const batch = writeBatch(db);
-  const authId = auth.currentUser.uid;
 
   const userRef = doc(db, `users/${userId}`);
   const teamRef = doc(db, `teams/${teamId}`);
@@ -202,10 +200,10 @@ export const getGroupUsers = async (groupId) => {
   return users;
 };
 
-export const getUserGroups = async (teamId) => {
+export const getUserGroups = async (teamId, authId) => {
   const groupsRef = collection(
     db,
-    `users/${auth.currentUser.uid}/teams/${teamId}/groups`
+    `users/${authId}/teams/${teamId}/groups`
   );
   const snapshot = await getDocs(groupsRef);
   const groupIds = snapshot.docs.map((d) => d.id);

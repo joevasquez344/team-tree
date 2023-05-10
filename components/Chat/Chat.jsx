@@ -4,8 +4,7 @@ import { useTeams } from "../../context/TeamsContext";
 import moment from "moment";
 import { useRouter } from "next/router";
 import ChatError from "./ChatError";
-import ChatSkeleton from './ChatSkeleton'
-
+import ChatSkeleton from "./ChatSkeleton";
 
 // Todos
 //  1. Capture live updates to reflect on clients for a user editing their message
@@ -16,11 +15,10 @@ const Chat = ({ messages, reply }) => {
   const [deletePrompt, setDeletePrompt] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState(null);
   const {
-
+    team,
     chatEndRef,
     chatStartRef,
     chatLoading,
-
     editTeamMessage,
     editGroupMessage,
     editDirectMessage,
@@ -32,6 +30,8 @@ const Chat = ({ messages, reply }) => {
   } = useTeams();
   const ref = useRef(null);
   const router = useRouter();
+
+  const [convertedMessages, setConvertedMessages] = useState([]);
 
   const editMessage = async (e, message, text) => {
     e.preventDefault();
@@ -174,9 +174,8 @@ const Chat = ({ messages, reply }) => {
           )}
           {chatLoading ? (
             <ChatSkeleton />
-            
           ) : (
-            convertMessages(messages ? messages : [])?.map((item) => (
+            convertMessages(messages ? messages : []).map((item) => (
               <div key={item.id}>
                 <div className={`flex items-center justify-center px-7`}>
                   <div className="flex items-center space-x-3 ">
@@ -199,23 +198,14 @@ const Chat = ({ messages, reply }) => {
                         inputEl === message.id && "bg-gray-800"
                       } transition ease-in-out duration-200 px-7 py-3`}
                     >
-                      {message.replyTo?.id && message.replyToText ? (
+                      {message.replyToMessage?.id && message.replyToText ? (
                         <div className="flex items-center relative">
                           <div className="absolute  w-12 top-3 pr-2 flex flex-col items-end  mb-3">
                             <div className="h-2.5 w-2.5 bg-green-500 mb-1 rounded-full"></div>
                             <div className="h-1.5 w-1.5 bg-green-500 mb-2 mr-4 rounded-full"></div>
                             <div className="h-1 w-1 bg-green-500 mx-auto rounded-full"></div>
                           </div>
-                          {/* <div className="absolute  w-12 top-3 pr-2  flex flex-col items-end  mb-3">
-                  <div className="flex w-full items-center  justify-center mb-3">
-               
-                    <div className="h-2 w-2 bg-green-500  rounded-full"></div>
-                  </div>
-                 
-                  <div className="flex w-full ">
-                    <div className="h-1 w-1  bg-green-500 mx-auto rounded-full"></div>
-                  </div>
-                </div> */}
+
                           <div
                             className={`inline-flex ml-12 mb-3 bg-gray-900 rounded-md shadow-xl p-3`}
                           >
@@ -240,10 +230,10 @@ const Chat = ({ messages, reply }) => {
                               </div>
 
                               <div className="text-gray-400 text-xs mr-2">
-                                @{message.replyTo.user.username}
+                                @{message.replyToMessage.user.username}
                               </div>
                               <div className="">
-                                {message.replyTo.isEdited && (
+                                {message.replyToMessage.isEdited && (
                                   <div className="text-yellow-400 text-xs mr-1">
                                     Edited
                                   </div>
@@ -256,7 +246,8 @@ const Chat = ({ messages, reply }) => {
                           </div>
                         </div>
                       ) : (
-                        message.replyTo === null && (
+                        message.replyToRef &&
+                        message.replyToMessage === null && (
                           <div className="flex items-center relative">
                             <div className="absolute  w-12 top-3 pr-2 flex flex-col items-end  mb-3">
                               <div className="h-2.5 w-2.5 bg-green-500 mb-1 rounded-full"></div>

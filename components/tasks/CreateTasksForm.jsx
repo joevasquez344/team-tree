@@ -46,7 +46,7 @@ const CreateTasksForm = ({
   };
 
   const selectTeam = async (teamId) => {
-    const groups = await fetchGroups(teamId);
+    const groups = await fetchGroups(teamId, authUser.id);
     const team = teams.find((team) => team.id === teamId);
     setTeam(team);
     if (groups.length === 0) {

@@ -29,7 +29,7 @@ const CreateGroupForm = ({ team }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const users = await getTeamMembers(team.id);
+      const users = await getTeamMembers(team.id, authUser.id);
       setTeamMembers(users);
     };
     fetchData();
